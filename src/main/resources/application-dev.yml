@@ -1,0 +1,26 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /experience/crossChannel/partyAuthentication
+    
+spring:
+  application:
+    name: password-management-service
+  
+logging:
+  level:
+    root: INFO
+    com.ec: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always 
+           
+msd.seg.otp.api.url: http://${MSD_SEG_OTP_ENDPOINT}/seguridad/v2/otp/validar
