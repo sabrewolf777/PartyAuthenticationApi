@@ -11,10 +11,15 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-import ec.com.dinersclub.partyAuthentication.domain.model.DinnersOtpRequest;
-import ec.com.dinersclub.partyAuthentication.domain.model.DinnersOtpResponse;
+
+import ec.com.dinersclub.partyAuthentication.domain.model.DinBody;
+import ec.com.dinersclub.partyAuthentication.domain.model.DinHeader;
+import ec.com.dinersclub.partyAuthentication.domain.model.DinOtpRq;
+import ec.com.dinersclub.partyAuthentication.domain.model.DinOtpRs;
+import ec.com.dinersclub.partyAuthentication.domain.model.Paginado;
 import ec.com.dinersclub.partyAuthentication.domain.model.RecEvaluateTokenRq;
 import ec.com.dinersclub.partyAuthentication.domain.model.RecEvaluateTokenRs;
+import ec.com.dinersclub.partyAuthentication.domain.model.Tag;
 
 @Component
 public class TokenOtpRestClientImpl implements TokenOtpRestClient{
@@ -22,34 +27,35 @@ public class TokenOtpRestClientImpl implements TokenOtpRestClient{
     private static final Logger log = LoggerFactory.getLogger(TokenOtpRestClientImpl.class.getName());
     
 	@Value("${msd.seg.otp.api.url}")
-	private String apiUrl;
+	String apiUrl;
 	
 	public RecEvaluateTokenRs tokenOtpValidate(RecEvaluateTokenRq request, HttpHeaders headers) {
 		
-		 RestTemplate restTemplate= new RestTemplate();
+		final RestTemplate restTemplate= new RestTemplate();
 		
-		final DinnersOtpRequest reqDinners= getDinnerRequest(request,headers);
+		final HttpHeaders hdrs = new HttpHeaders();
 		
-		log.info(" Request Dinners: {}",reqDinners);
+		final DinOtpRq reqDinners= getDinnerRequest(request,headers);
 		
-		HttpEntity<DinnersOtpRequest> entity = new HttpEntity<>(reqDinners, headers);
+		log.info(" Request Dinners: apiUrl: {},params: {}",apiUrl, reqDinners);
+		
+		final HttpEntity<DinOtpRq> entity = new HttpEntity<>(reqDinners, hdrs);
 
-	    ResponseEntity<DinnersOtpResponse> respDinners = restTemplate.exchange(apiUrl, HttpMethod.POST, entity, DinnersOtpResponse.class);
+	    final ResponseEntity<DinOtpRs> respDinners = restTemplate.exchange(apiUrl, HttpMethod.POST, entity, DinOtpRs.class);
 		
 		log.info(" Response Dinners: {}",respDinners);	
 		
 		return getDinnersRsToTokenRs(respDinners);
 	}
 	
-	public DinnersOtpRequest getDinnerRequest(RecEvaluateTokenRq request,HttpHeaders headers) {
+	public DinOtpRq getDinnerRequest(RecEvaluateTokenRq request,HttpHeaders headers) {
 		    	
-    	final List<DinnersOtpRequest.DinHeader.Tag> tags = new ArrayList<>();
-        tags.add(DinnersOtpRequest.DinHeader.Tag.builder()
-		        						    .clave(getHeaderValueAsString(headers,"tagsKeyValue"))
-						        		    .valor(getHeaderValueAsString(headers,"tagsKeyValue"))
-						        		    .build());
+    	final List<Tag> tags = new ArrayList<>();
+        tags.add(Tag.builder().clave(getHeaderValueAsString(headers,"tagsKeyValue"))
+						      .valor(getHeaderValueAsString(headers,"tagsKeyValue"))
+						      .build());
         	
-    	return DinnersOtpRequest.builder().dinHeader(DinnersOtpRequest.DinHeader.builder()
+    	return DinOtpRq.builder().dinHeader(DinHeader.builder()
 																	.aplicacionId(getHeaderValueAsString(headers,"applicationId")) 
 																	.canalId( getHeaderValueAsString(headers,"channelId"))
 																	.sesionId(getHeaderValueAsString(headers,"sesionId"))
@@ -61,14 +67,14 @@ public class TokenOtpRestClientImpl implements TokenOtpRestClient{
 																	.horaTransaccion(getHeaderValueAsString(headers,"transactionDate"))
 																	.llaveSimetrica(getHeaderValueAsString(headers,"simetricKey"))
 																	.usuario(getHeaderValueAsString(headers,"userId"))
-																	.paginado(DinnersOtpRequest.DinHeader.Paginado.builder()
+																	.paginado(Paginado.builder()
 			    																  .cantRegistros(getHeaderValueAsInt(headers,"recordsAmount"))
 			    																  .numPagActual(getHeaderValueAsInt(headers,"pagesCurrentIndex"))
 			    																  .numTotalPag(getHeaderValueAsInt(headers,"pagesAmount"))
 			    															  .build())
 																	.tags(tags)
 			    											.build())
-    										.dinBody(DinnersOtpRequest.DinBody.builder()
+    										.dinBody(DinBody.builder()
     														.identificacionUsuario(request.getPartyAuthenticationAssessment().getPartyReference().getReferenceId())
     														.perfil(request.getPartyAuthenticationAssessment().getPartyReference().getPartyType())
     														.usuarioBiometrico(request.getUsername())
@@ -81,9 +87,9 @@ public class TokenOtpRestClientImpl implements TokenOtpRestClient{
     							   .build();    	
     }
 	
-	private RecEvaluateTokenRs getDinnersRsToTokenRs(ResponseEntity<DinnersOtpResponse> response) {
+	private RecEvaluateTokenRs getDinnersRsToTokenRs(ResponseEntity<DinOtpRs> response) {
 		RecEvaluateTokenRs res= null;
-		DinnersOtpResponse resp=response.getBody();
+		DinOtpRs resp=response.getBody();
 		if(resp != null) {
     		res= new RecEvaluateTokenRs();
     		if(resp.getDinBody() != null) {

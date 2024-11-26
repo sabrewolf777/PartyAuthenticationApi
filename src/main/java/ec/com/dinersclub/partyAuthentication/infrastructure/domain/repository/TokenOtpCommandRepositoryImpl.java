@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TokenOtpCommandRepositoryImpl implements TokenOtpCommandRepository {
 
-	TokenOtpRestClient tokenOtpRestClient;
+	private final TokenOtpRestClient tokenOtpRestClient;
 	
 	@Override
 	public RecEvaluateTokenRs tokenOtpValidate(RecEvaluateTokenRq request, HttpHeaders headers) {

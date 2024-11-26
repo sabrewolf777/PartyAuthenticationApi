@@ -50,17 +50,17 @@ public class HeadersValidator implements ConstraintValidator<ValidHeaders, HttpH
         }
         
         if (!headers.containsKey("recordsAmount")) {
-            addConstraintViolation(context, "El header applicationId es requerido");
+            addConstraintViolation(context, "El header recordsAmount es requerido");
             return false;
         }
         
         if (!headers.containsKey("pagesAmount")) {
-            addConstraintViolation(context, "El header applicationId es requerido");
+            addConstraintViolation(context, "El header pagesAmount es requerido");
             return false;
         }
         
         if (!headers.containsKey("pagesCurrentIndex")) {
-            addConstraintViolation(context, "El header applicationId es requerido");
+            addConstraintViolation(context, "El header pagesCurrentIndex es requerido");
             return false;
         }
         

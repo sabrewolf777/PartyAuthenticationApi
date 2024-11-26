@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TokenOtpCreateUseCase {
 
-	TokenOtpCommandRepository tokenOtpCommandRepository;
+	private final TokenOtpCommandRepository tokenOtpCommandRepository;
 	
 	public RecEvaluateTokenRs tokenOtpValidate(RecEvaluateTokenRq request,HttpHeaders headers) {
 		return tokenOtpCommandRepository.tokenOtpValidate(request, headers);
